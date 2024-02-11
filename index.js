@@ -4,11 +4,19 @@ const app = express();
 const handlebars = require('express-handlebars');
 const routes = require('./routes');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
+const { auth } = require('./scr/middleware/authMiddleware');
+
 
 
 app.use(express.static(path.resolve("scr/static")))
 
 app.use(express.urlencoded({ extended: false }))
+
+app.use(cookieParser())
+app.use(auth)
+
+
 
 app.engine("hbs", handlebars.engine({
     extname: "hbs"
