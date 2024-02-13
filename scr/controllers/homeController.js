@@ -1,35 +1,42 @@
 const router = require('express').Router();
+const { isAuth } = require('../middleware/authMiddleware')
+const createService = require('../services/createService');
 
 router.get('/', (req, res) => {
 
     res.render("home")
 })
 
-router.get("/create", (req, res) => {
+router.get("/create", isAuth, (req, res) => {
 
     res.render("create")
 
 })
 
 
-router.post('/create', async (req, res) => {
+router.post('/create', isAuth, async (req, res) => {
+    const productData = req.body
 
+    try {
+        await createService.createPost(productData)
+
+        res.redirect("/catalog")
+
+    }
+    catch (err) {
+        res.render("create", { message: err.message })
+    }
 
 });
 
-router.get('/details', (req, res) => {
-    res.render("details")
-});
-
-router.post("details", (req, res) => {
-
-});
 
 
 
+router.get('/catalog', async (req, res) => {
+    const [...allPosts] = await createService.getAllPosts().lean()
 
-router.get('/catalog', (req, res) => {
-    res.render("catalog")
+    res.render("catalog", { allPosts })
+
 
 });
 
@@ -41,9 +48,15 @@ router.get('/search', (req, res) => {
 router.post('/search', (req, res) => {
 });
 
+router.get("/products/:productId/details", async (req, res) => {
 
-router.get('/logout', (req, res) => {
-    res.clearCookie('auth');
-    res.redirect('/');
-});
+    const productId = req.params.productId
+    const product = await createService.getProduct(productId).lean()
+    console.log(product.__v);
+    console.log(req.user);
+
+    // const isCreator = await createService.getCreator(req.params)
+    res.render("details", { product })
+})
+
 module.exports = router
