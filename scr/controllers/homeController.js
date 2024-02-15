@@ -16,9 +16,10 @@ router.get("/create", isAuth, (req, res) => {
 
 router.post('/create', isAuth, async (req, res) => {
     const productData = req.body
+    const userId = req.user
 
     try {
-        await createService.createPost(productData)
+        const userInfo = await createService.createPost(userId, productData)
 
         res.redirect("/catalog")
 
@@ -52,11 +53,25 @@ router.get("/products/:productId/details", async (req, res) => {
 
     const productId = req.params.productId
     const product = await createService.getProduct(productId).lean()
-    console.log(product.__v);
-    console.log(req.user);
+    const isCreator = product.owner?.email === req.user.email
+    let isLoggedIn;
+    if (req.user.email) { isLoggedIn = true } else { isLoggedIn = false }
+
 
     // const isCreator = await createService.getCreator(req.params)
-    res.render("details", { product })
+    res.render("details", { product, isCreator, isLoggedIn })
+})
+
+router.get('/:productId/buy', async (req, res) => {
+    const userId = req.user._id
+    try {
+        await createService.buy(userId, req.params.productId)
+        res.redirect("/products/:productId/details")
+
+    } catch (err) {
+
+    }
+
 })
 
 module.exports = router
