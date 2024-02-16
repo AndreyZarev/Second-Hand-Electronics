@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
+        minLength: [3, "Username must be at least 3 characters!"]
 
     },
     email: {
@@ -19,17 +20,18 @@ const userSchema = new mongoose.Schema({
     }
 })
 
+
+// · The email is required and should be at least 10 characters long.
+
+// · The password is required and should be at least 4 characters long.
+
+// · The repeat password is required and should be equal to the password.
 const User = mongoose.model('User', userSchema)
 
+
 userSchema.pre('save', async function () {
-    this.password = await bcrypt.hash(this.password, 12)
+    const hash = await bcrypt.hash(this.password, 12)
+    console.log(hash);
+    this.password = hash
 })
-
-// userSchema.virtual("rePassword")
-//     .set(function (value) {
-//         if (this.password !== value) {
-//             throw new Error("Passwords do not match!")
-//         }
-//     })
-
 module.exports = User
