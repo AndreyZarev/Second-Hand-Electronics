@@ -1,6 +1,9 @@
 const router = require('express').Router();
 const { isAuth } = require('../middleware/authMiddleware')
 const createService = require('../services/createService');
+const { getErrorMessage } = require('../utils/errorHandles')
+
+const { getAllPosts } = require('../services/createService')
 
 router.get('/', (req, res) => {
 
@@ -42,12 +45,7 @@ router.get('/catalog', async (req, res) => {
 });
 
 
-router.get('/search', (req, res) => {
-    res.render("search")
-});
 
-router.post('/search', (req, res) => {
-});
 
 router.get("/products/:productId/details", async (req, res) => {
 
@@ -95,8 +93,27 @@ router.get("/product/:productId/edit", async (req, res) => {
 
 router.post("/product/:productId/edit", async (req, res) => {
     const productChanges = req.body
-    createService.updateProduct(req.params.productId, productChanges)
-    res.redirect(`/products/${req.params.productId}/details`)
+    try {
+        await createService.updateProduct(req.params.productId, productChanges)
+        res.redirect(`/products/${req.params.productId}/details`)
+    } catch (err) {
+        let message = getErrorMessage(err)
+        res.render(`edit`, { ...productChanges, message })
+    }
+
+
 })
+
+router.get('/search', async (req, res) => {
+    const electronics = await createService.getAllPosts().lean()
+    res.render("search", { electronics })
+});
+
+router.post('/search', async (req, res) => {
+    const { name, type } = req.body
+    const electronics = await createService.search(name, type).lean()
+
+    res.render("search", { electronics })
+});
 
 module.exports = router
