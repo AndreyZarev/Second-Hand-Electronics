@@ -1,13 +1,16 @@
-const mongoose = require('mongoose')
-exports.getErrorMessage = (error) => {
-    let message = ""
+const mongoose = require('mongoose');
 
-    if (error instanceof mongoose.MongooseError) {
-        message = Object.values(error.errors).at(0).message
+exports.getErrorMessage = (err) => {
+    let message = '';
 
-    } else if (error instanceof Error) {
-        message = error.message
+    if (err instanceof mongoose.MongooseError) {
+        message = Object.values(err.errors).at(0).message;
+    } else if (err instanceof Error) {
+        message = err.message;
     }
-    console.log(message);
+
     return message;
 }
+
+
+
