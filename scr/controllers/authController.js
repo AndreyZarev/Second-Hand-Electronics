@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const authService = require("../services/authService")
-
-
+const { isAuth } = require('../middleware/authMiddleware')
+const { getErrorMessage } = require('../utils/errorHandles')
 router.get('/register', (req, res) => {
 
     res.render('register');
@@ -11,16 +11,17 @@ router.get('/register', (req, res) => {
 router.post('/register', async (req, res) => {
 
     const userData = req.body
-
     try {
-        await authService.register(userData)
+        const result = await authService.register(userData)
+        if (result) {
+            res.redirect("/auth/login")
+        }
+    } catch (result) {
+        console.log(result);
+        const message = getErrorMessage(result)
+        res.render('register', { message });
 
-        res.redirect("/auth/login")
-
-    } catch (err) {
-        res.render('register', { message: err.message });
     }
-
 });
 
 
@@ -45,7 +46,7 @@ router.post('/login', async (req, res) => {
 });
 
 
-router.get('/logout', (req, res) => {
+router.get('/logout', isAuth, (req, res) => {
     res.clearCookie('auth');
     res.redirect('/');
 });
