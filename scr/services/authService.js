@@ -20,14 +20,11 @@ exports.register = async (userData) => {
     }
 
     if (userData.password !== userData.rePassword) {
-        throw new Error("Passwords do not match!");
+        throw new Error("The repeat password is required and should be equal to the password.");
     }
-    try {
-        User.create(userData)
-    } catch (err) {
-        console.log(err);
 
-    }
+    await User.create(userData)
+
 }
 
 exports.login = async (email, password) => {
