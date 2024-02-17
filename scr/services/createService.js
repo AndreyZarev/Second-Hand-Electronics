@@ -2,9 +2,11 @@ const Electronics = require('../models/Electronics')
 
 exports.createPost = async function (userId, productData) {
 
+
     productData.owner = userId._id;
     await Electronics.create(productData)
 
+    // await Electronics.findByIdAndUpdate(productId, { $push: { owner: userId } })
 }
 
 
@@ -28,6 +30,22 @@ exports.getProduct = (productId) => {
 };
 
 exports.buy = async (userId, productId) => {
-    const buyingList = await Electronics.findByIdAndUpdate(productId).buyingList.push(userId);
-    console.log(buyingList);
+    await Electronics.findByIdAndUpdate(productId, { $push: { buyingList: userId } }, { runValidators: true })
+
+
+}
+
+exports.isBought = (userId, productId) => {
+    const porductCreatorId = Electronics.findById(productId).populate("owner")
+
+    return porductCreatorId
+}
+
+exports.deleteProduct = async (productId) => {
+    await Electronics.findByIdAndDelete(productId)
+}
+
+exports.updateProduct = async (productId, body) => {
+
+    await Electronics.findByIdAndUpdate(productId, body, { runValidators: true })
 }
