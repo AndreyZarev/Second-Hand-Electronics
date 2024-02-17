@@ -5,6 +5,13 @@ const jwt = require("../lib/jwt")
 const { SECRET } = require('../config/secret');
 
 exports.register = async (userData) => {
+    if (!userData.email) {
+        throw new Error("Email is required")
+    }
+
+    if (!userData.username) {
+        throw new Error("Username is required")
+    }
 
     const user = await User.findOne({ email: userData.email })
 
@@ -15,7 +22,12 @@ exports.register = async (userData) => {
     if (userData.password !== userData.rePassword) {
         throw new Error("Passwords do not match!");
     }
-    User.create(userData)
+    try {
+        User.create(userData)
+    } catch (err) {
+        console.log(err);
+
+    }
 }
 
 exports.login = async (email, password) => {
