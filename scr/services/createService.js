@@ -1,5 +1,5 @@
 const Electronics = require('../models/Electronics')
-
+const User = require('../models/User')
 exports.createPost = async function (userId, productData) {
 
 
@@ -48,4 +48,18 @@ exports.deleteProduct = async (productId) => {
 exports.updateProduct = async (productId, body) => {
 
     await Electronics.findByIdAndUpdate(productId, body, { runValidators: true })
+}
+
+exports.search = (name, type) => {
+    let query = {}
+
+    if (name) {
+        query.name = new RegExp(name, 'i');
+    }
+
+    if (type) {
+        query.type = type.toLowerCase();
+    }
+    return Electronics.find(query)
+
 }
